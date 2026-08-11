@@ -1,7 +1,7 @@
 import React from 'react';
-import type { MediaErrorProps } from '../types/index.js';
+import type { MediaErrorProps, MediaSDKError } from '../types/index.js';
 
-function getSafeErrorMessage(error: Error | null): string {
+function getSafeErrorMessage(error: MediaSDKError | Error | null): string {
   if (!error) return 'An unexpected error occurred.';
   const msg = error.message || 'An error occurred while loading media.';
   return msg.replace(/(key|token|auth)=[\w-]+/gi, '$1=***');

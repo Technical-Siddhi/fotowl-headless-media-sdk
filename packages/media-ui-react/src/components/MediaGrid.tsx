@@ -8,6 +8,9 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
   onDownloadAsset,
   renderItem,
   emptyState = <p className="media-grid-empty">No media items found.</p>,
+  hasMore = false,
+  loading = false,
+  onLoadMore,
   className = '',
   style,
 }) => {
@@ -19,22 +22,38 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
     <div
       role="region"
       aria-label="Media gallery"
-      className={`media-grid ${className}`.trim()}
+      className={`media-grid-container ${className}`.trim()}
       style={style}
     >
-      {assets.map((asset) => (
-        <div key={asset.id} className="media-grid-item">
-          {renderItem ? (
-            renderItem(asset)
-          ) : (
-            <MediaCard
-              asset={asset}
-              onSelect={onSelectAsset}
-              onDownload={onDownloadAsset}
-            />
-          )}
+      <div className="media-grid">
+        {assets.map((asset) => (
+          <div key={asset.id} className="media-grid-item">
+            {renderItem ? (
+              renderItem(asset)
+            ) : (
+              <MediaCard
+                asset={asset}
+                onSelect={onSelectAsset}
+                onDownload={onDownloadAsset}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {hasMore && onLoadMore && (
+        <div className="media-grid-load-more">
+          <button
+            type="button"
+            onClick={onLoadMore}
+            disabled={loading}
+            className="media-load-more-btn"
+            aria-label="Load more items"
+          >
+            {loading ? 'Loading...' : 'Load More'}
+          </button>
         </div>
-      ))}
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import type { MediaAsset } from '@fotowl/media-core';
+import type { MediaAsset } from '../src/index.js';
 import { useMediaUI } from '../src/index.js';
 
 const mockAsset: MediaAsset = {

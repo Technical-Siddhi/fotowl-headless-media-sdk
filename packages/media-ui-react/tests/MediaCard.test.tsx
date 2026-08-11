@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import type { MediaAsset } from '@fotowl/media-core';
+import type { MediaAsset } from '../src/index.js';
 import { MediaCard } from '../src/index.js';
 
 const mockAsset: MediaAsset = {

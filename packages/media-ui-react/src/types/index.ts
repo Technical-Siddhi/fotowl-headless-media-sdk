@@ -1,5 +1,53 @@
 import type React from 'react';
-import type { MediaAsset, MediaSDKError } from '@fotowl/media-react';
+
+export type MediaType = 'photo' | 'video' | 'audio';
+
+export interface MediaAuthor {
+  name: string;
+  url?: string;
+  avatarUrl?: string;
+}
+
+export interface MediaSourceVariants {
+  original: string;
+  large: string;
+  medium: string;
+  small: string;
+  portrait?: string;
+  landscape?: string;
+  tiny: string;
+}
+
+export interface MediaVideoFile {
+  id?: number | string;
+  quality?: string;
+  fileType?: string;
+  width?: number;
+  height?: number;
+  link: string;
+}
+
+export interface MediaAsset {
+  id: string;
+  type: MediaType;
+  title: string;
+  url: string;
+  previewUrl: string;
+  downloadUrl?: string;
+  width: number;
+  height: number;
+  author: MediaAuthor;
+  src: MediaSourceVariants;
+  avgColor?: string;
+  videoFiles?: MediaVideoFile[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface MediaSDKError {
+  message: string;
+  code?: string;
+  status?: number;
+}
 
 export interface MediaCardProps {
   asset: MediaAsset;
@@ -16,13 +64,29 @@ export interface MediaGridProps {
   onDownloadAsset?: (asset: MediaAsset) => void;
   renderItem?: (asset: MediaAsset) => React.ReactNode;
   emptyState?: React.ReactNode;
+  hasMore?: boolean;
+  loading?: boolean;
+  onLoadMore?: () => void;
   className?: string;
   style?: React.CSSProperties;
 }
 
 export interface MediaSearchProps {
+  value?: string;
+  onChange?: (value: string) => void;
+  onSubmit?: (query: string) => void;
   initialQuery?: string;
   perPage?: number;
+  query?: string;
+  onSearch?: (query: string) => void;
+  assets?: MediaAsset[];
+  isLoading?: boolean;
+  error?: MediaSDKError | Error | null;
+  page?: number;
+  totalPages?: number;
+  hasNext?: boolean;
+  hasPrev?: boolean;
+  onPageChange?: (page: number) => void;
   onSelectAsset?: (asset: MediaAsset) => void;
   onDownloadAsset?: (asset: MediaAsset) => void;
   renderItem?: (asset: MediaAsset) => React.ReactNode;
@@ -61,6 +125,21 @@ export interface MediaLoadingProps {
 export interface MediaErrorProps {
   error: MediaSDKError | Error | null;
   onRetry?: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface MediaReelProps {
+  assets: MediaAsset[];
+  activeIndex?: number;
+  onActiveChange?: (asset: MediaAsset, index: number) => void;
+  onSelectAsset?: (asset: MediaAsset) => void;
+  onDownloadAsset?: (asset: MediaAsset) => void;
+  renderItem?: (asset: MediaAsset, isActive: boolean, index: number) => React.ReactNode;
+  emptyState?: React.ReactNode;
+  hasMore?: boolean;
+  loading?: boolean;
+  onLoadMore?: () => void;
   className?: string;
   style?: React.CSSProperties;
 }

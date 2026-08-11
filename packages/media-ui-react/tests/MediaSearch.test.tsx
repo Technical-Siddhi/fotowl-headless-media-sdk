@@ -1,17 +1,8 @@
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import type { MediaAsset } from '@fotowl/media-core';
-import * as MediaReact from '@fotowl/media-react';
+import type { MediaAsset } from '../src/index.js';
 import { MediaSearch } from '../src/index.js';
-
-vi.mock('@fotowl/media-react', async () => {
-  const actual = await vi.importActual('@fotowl/media-react');
-  return {
-    ...actual,
-    useMediaSearch: vi.fn(),
-  };
-});
 
 const mockAsset: MediaAsset = {
   id: '888',
@@ -25,69 +16,45 @@ const mockAsset: MediaAsset = {
 };
 
 describe('MediaSearch Component', () => {
-  it('renders search input and triggers search on form submit', () => {
-    vi.mocked(MediaReact.useMediaSearch).mockReturnValue({
-      data: null,
-      isLoading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+  it('renders search input and triggers onSubmit on form submit', () => {
+    const onSubmit = vi.fn();
+    render(<MediaSearch value="forest" onSubmit={onSubmit} />);
 
-    render(<MediaSearch initialQuery="" />);
-
-    const input = screen.getByLabelText(/search media input/i);
+    const input = screen.getByLabelText(/search media input/i) as HTMLInputElement;
     const submitBtn = screen.getByRole('button', { name: /submit search/i });
 
-    fireEvent.change(input, { target: { value: 'forest' } });
+    expect(input.value).toBe('forest');
     fireEvent.click(submitBtn);
 
-    expect(MediaReact.useMediaSearch).toHaveBeenCalledWith({
-      query: 'forest',
-      page: 1,
-      perPage: 15,
-    });
+    expect(onSubmit).toHaveBeenCalledWith('forest');
   });
 
-  it('renders loading indicator when search is loading', () => {
-    vi.mocked(MediaReact.useMediaSearch).mockReturnValue({
-      data: null,
-      isLoading: true,
-      error: null,
-      refetch: vi.fn(),
-    });
-
-    render(<MediaSearch initialQuery="ocean" />);
+  it('renders loading indicator when isLoading is true', () => {
+    render(<MediaSearch query="ocean" isLoading={true} />);
 
     const status = screen.getByRole('status');
     expect(status.textContent).toContain('Searching for "ocean"...');
   });
 
   it('renders error component when search error occurs', () => {
-    vi.mocked(MediaReact.useMediaSearch).mockReturnValue({
-      data: null,
-      isLoading: false,
-      error: new Error('Rate limit exceeded'),
-      refetch: vi.fn(),
-    });
-
-    render(<MediaSearch initialQuery="ocean" />);
+    render(<MediaSearch query="ocean" error={new Error('Rate limit exceeded')} />);
 
     const alert = screen.getByRole('alert');
     expect(alert.textContent).toContain('Rate limit exceeded');
   });
 
   it('renders results grid and integrates pagination control', () => {
-    vi.mocked(MediaReact.useMediaSearch).mockReturnValue({
-      data: {
-        assets: [mockAsset],
-        pagination: { page: 1, perPage: 15, totalResults: 30, hasNext: true },
-      },
-      isLoading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+    const onPageChange = vi.fn();
 
-    render(<MediaSearch initialQuery="forest" />);
+    render(
+      <MediaSearch
+        query="forest"
+        assets={[mockAsset]}
+        page={1}
+        hasNext={true}
+        onPageChange={onPageChange}
+      />
+    );
 
     expect(screen.getByText('Search Result Item')).not.toBeNull();
     const nextBtn = screen.getByRole('button', { name: /next page/i }) as HTMLButtonElement;
@@ -95,10 +62,6 @@ describe('MediaSearch Component', () => {
 
     fireEvent.click(nextBtn);
 
-    expect(MediaReact.useMediaSearch).toHaveBeenLastCalledWith({
-      query: 'forest',
-      page: 2,
-      perPage: 15,
-    });
+    expect(onPageChange).toHaveBeenCalledWith(2);
   });
 });

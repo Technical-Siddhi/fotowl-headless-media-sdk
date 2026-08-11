@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCuratedMedia, useMediaSDK } from '@fotowl/media-react';
+import { useCuratedMedia, useMediaSearch, useMediaSDK } from '@fotowl/media-react';
 import type { MediaAsset } from '@fotowl/media-react';
 import {
   MediaCard,
@@ -8,24 +8,43 @@ import {
   MediaLoading,
   MediaModal,
   MediaPagination,
+  MediaReel,
   MediaSearch,
   useMediaUI,
 } from '@fotowl/media-ui-react';
 
 export const MediaBrowser: React.FC = () => {
-  const [mode, setMode] = useState<'search' | 'curated'>('search');
+  const [mode, setMode] = useState<'search' | 'curated' | 'reel'>('search');
+  const [searchQuery, setSearchQuery] = useState('nature');
+  const [searchInput, setSearchInput] = useState('nature');
+  const [searchPage, setSearchPage] = useState(1);
   const [curatedPage, setCuratedPage] = useState(1);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
   const sdk = useMediaSDK();
   const { selectedAsset, isModalOpen, openAsset, closeAsset } = useMediaUI();
 
-  // Curated media hook (active when mode === 'curated')
+  // Search data wiring in demo-web layer
+  const {
+    data: searchData,
+    isLoading: isSearchLoading,
+    error: searchError,
+  } = useMediaSearch(mode === 'search' ? { query: searchQuery, page: searchPage, perPage: 12 } : null);
+
+  // Curated media wiring in demo-web layer
   const {
     data: curatedData,
     isLoading: isCuratedLoading,
     error: curatedError,
     refetch: refetchCurated,
-  } = useCuratedMedia(mode === 'curated' ? { page: curatedPage, perPage: 12 } : null);
+  } = useCuratedMedia(mode === 'curated' || mode === 'reel' ? { page: curatedPage, perPage: 12 } : null);
+
+  const handleSearchSubmit = (query: string) => {
+    if (query.trim()) {
+      setSearchQuery(query.trim());
+      setSearchPage(1);
+    }
+  };
 
   const handleSelectAsset = (asset: MediaAsset) => {
     sdk.trackView(asset);
@@ -109,14 +128,34 @@ export const MediaBrowser: React.FC = () => {
         >
           Curated Showcase
         </button>
+        <button
+          id="tab-reel"
+          type="button"
+          role="tab"
+          aria-selected={mode === 'reel'}
+          aria-controls="panel-reel"
+          className={`tab-btn ${mode === 'reel' ? 'active' : ''}`}
+          onClick={() => setMode('reel')}
+        >
+          Video Reel / Swiper
+        </button>
       </div>
 
       {/* Search Mode Panel */}
       {mode === 'search' && (
         <div id="panel-search" role="tabpanel" aria-labelledby="tab-search">
           <MediaSearch
-            initialQuery="nature"
-            perPage={12}
+            value={searchInput}
+            onChange={(val) => setSearchInput(val)}
+            onSubmit={handleSearchSubmit}
+            query={searchQuery}
+            assets={searchData?.assets || []}
+            isLoading={isSearchLoading}
+            error={searchError}
+            page={searchPage}
+            hasNext={searchData?.pagination?.hasNext}
+            hasPrev={searchPage > 1}
+            onPageChange={(p) => setSearchPage(p)}
             onSelectAsset={handleSelectAsset}
             onDownloadAsset={handleDownloadAsset}
             renderItem={renderMediaCard}
@@ -149,6 +188,26 @@ export const MediaBrowser: React.FC = () => {
                 />
               )}
             </>
+          )}
+        </div>
+      )}
+
+      {/* Reel Swiper Mode Panel */}
+      {mode === 'reel' && (
+        <div id="panel-reel" role="tabpanel" aria-labelledby="tab-reel" className="reel-container" style={{ height: '600px' }}>
+          {isCuratedLoading && <MediaLoading message="Loading reel items..." />}
+          {curatedError && <MediaError error={curatedError} onRetry={refetchCurated} />}
+
+          {!isCuratedLoading && !curatedError && curatedData && (
+            <MediaReel
+              assets={curatedData.assets}
+              onActiveChange={(asset) => sdk.trackView(asset)}
+              onSelectAsset={handleSelectAsset}
+              onDownloadAsset={handleDownloadAsset}
+              renderItem={(asset) => renderMediaCard(asset)}
+              hasMore={curatedData.pagination?.hasNext}
+              onLoadMore={() => setCuratedPage((prev) => prev + 1)}
+            />
           )}
         </div>
       )}

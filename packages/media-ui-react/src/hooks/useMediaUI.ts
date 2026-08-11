@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
-import type { MediaAsset } from '@fotowl/media-react';
-import type { UseMediaUIResult } from '../types/index.js';
+import type { MediaAsset, UseMediaUIResult } from '../types/index.js';
 
 export function useMediaUI(): UseMediaUIResult {
   const [selectedAsset, setSelectedAsset] = useState<MediaAsset | null>(null);

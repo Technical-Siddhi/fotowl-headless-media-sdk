@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useMediaSearch } from '@fotowl/media-react';
 import type { MediaSearchProps } from '../types/index.js';
 import { MediaGrid } from './MediaGrid.js';
 import { MediaPagination } from './MediaPagination.js';
@@ -7,8 +6,19 @@ import { MediaLoading } from './MediaLoading.js';
 import { MediaError } from './MediaError.js';
 
 export const MediaSearch: React.FC<MediaSearchProps> = ({
+  value,
+  onChange,
+  onSubmit,
   initialQuery = '',
-  perPage = 15,
+  query: controlledQuery,
+  onSearch,
+  assets = [],
+  isLoading = false,
+  error = null,
+  page = 1,
+  hasNext = false,
+  hasPrev = false,
+  onPageChange,
   onSelectAsset,
   onDownloadAsset,
   renderItem,
@@ -18,25 +28,30 @@ export const MediaSearch: React.FC<MediaSearchProps> = ({
   className = '',
   style,
 }) => {
-  const [inputValue, setInputValue] = useState(initialQuery);
-  const [activeQuery, setActiveQuery] = useState(initialQuery);
-  const [page, setPage] = useState(1);
+  const [internalValue, setInternalValue] = useState(initialQuery);
 
-  const { data, isLoading, error, refetch } = useMediaSearch(
-    activeQuery.trim() ? { query: activeQuery, page, perPage } : null
-  );
+  const inputValue = value !== undefined ? value : internalValue;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim()) {
-      setActiveQuery(inputValue.trim());
-      setPage(1);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (onChange) {
+      onChange(val);
+    } else {
+      setInternalValue(val);
     }
   };
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSubmit) {
+      onSubmit(inputValue);
+    }
+    if (onSearch) {
+      onSearch(inputValue);
+    }
   };
+
+  const activeSearchTerm = controlledQuery ?? inputValue;
 
   return (
     <div className={`media-search-container ${className}`.trim()} style={style}>
@@ -49,7 +64,7 @@ export const MediaSearch: React.FC<MediaSearchProps> = ({
             id="media-search-input"
             type="search"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={handleInputChange}
             placeholder="Search for photos, media..."
             aria-label="Search media input"
           />
@@ -59,30 +74,32 @@ export const MediaSearch: React.FC<MediaSearchProps> = ({
         </div>
       </form>
 
-      {isLoading && (loadingState || <MediaLoading message={`Searching for "${activeQuery}"...`} />)}
+      {isLoading && (loadingState || <MediaLoading message={`Searching for "${activeSearchTerm}"...`} />)}
 
-      {error && (errorState ? errorState(error) : <MediaError error={error} onRetry={refetch} />)}
+      {error && (errorState ? errorState(error) : <MediaError error={error} />)}
 
-      {!isLoading && !error && data && (
+      {!isLoading && !error && assets && assets.length > 0 && (
         <>
           <MediaGrid
-            assets={data.assets}
+            assets={assets}
             onSelectAsset={onSelectAsset}
             onDownloadAsset={onDownloadAsset}
             renderItem={renderItem}
             emptyState={emptyState}
           />
 
-          {data.pagination && (data.pagination.hasNext || page > 1) && (
+          {(hasNext || hasPrev || page > 1) && onPageChange && (
             <MediaPagination
               page={page}
-              hasNext={data.pagination.hasNext}
-              hasPrev={page > 1}
-              onPageChange={handlePageChange}
+              hasNext={hasNext}
+              hasPrev={hasPrev || page > 1}
+              onPageChange={onPageChange}
             />
           )}
         </>
       )}
+
+      {!isLoading && !error && assets.length === 0 && (emptyState || null)}
     </div>
   );
 };
