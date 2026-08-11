@@ -76,6 +76,12 @@ export const MediaModal: React.FC<MediaModalProps> = ({
               alt={asset.title || 'Detailed view'}
               width={asset.width}
               height={asset.height}
+              style={{
+                width: '100%',
+                height: 'auto',
+                maxHeight: '70vh',
+                objectFit: 'contain',
+              }}
             />
           </div>
 
