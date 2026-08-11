@@ -5,6 +5,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   asset,
   onSelect,
   onDownload,
+  extraActions,
   className = '',
   style,
 }) => {
@@ -23,6 +24,8 @@ export const MediaCard: React.FC<MediaCardProps> = ({
     e.stopPropagation();
     onDownload?.(asset);
   };
+
+  const hasActions = Boolean(extraActions || (onDownload && asset.downloadUrl));
 
   return (
     <article
@@ -62,15 +65,20 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           </p>
         )}
       </div>
-      {onDownload && asset.downloadUrl && (
-        <button
-          type="button"
-          className="media-card-download-btn"
-          onClick={handleDownloadClick}
-          aria-label={`Download ${asset.title || 'media asset'}`}
-        >
-          Download
-        </button>
+      {hasActions && (
+        <div className="media-card-actions">
+          {extraActions}
+          {onDownload && asset.downloadUrl && (
+            <button
+              type="button"
+              className="media-card-download-btn"
+              onClick={handleDownloadClick}
+              aria-label={`Download ${asset.title || 'media asset'}`}
+            >
+              Download
+            </button>
+          )}
+        </div>
       )}
     </article>
   );

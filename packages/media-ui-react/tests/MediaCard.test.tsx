@@ -64,4 +64,17 @@ describe('MediaCard Component', () => {
 
     expect(onDownload).toHaveBeenCalledWith(mockAsset);
   });
+
+  it('renders extraActions node inside card actions container', () => {
+    render(
+      <MediaCard
+        asset={mockAsset}
+        extraActions={<button type="button" aria-label="Add to favorites">Favorite</button>}
+      />
+    );
+
+    const favBtn = screen.getByRole('button', { name: /add to favorites/i });
+    expect(favBtn).not.toBeNull();
+    expect(favBtn.textContent).toBe('Favorite');
+  });
 });

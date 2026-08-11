@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCuratedMedia, useMediaSDK } from '@fotowl/media-react';
 import type { MediaAsset } from '@fotowl/media-react';
 import {
+  MediaCard,
   MediaError,
   MediaGrid,
   MediaLoading,
@@ -14,6 +15,7 @@ import {
 export const MediaBrowser: React.FC = () => {
   const [mode, setMode] = useState<'search' | 'curated'>('search');
   const [curatedPage, setCuratedPage] = useState(1);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const sdk = useMediaSDK();
   const { selectedAsset, isModalOpen, openAsset, closeAsset } = useMediaUI();
 
@@ -35,6 +37,50 @@ export const MediaBrowser: React.FC = () => {
     if (asset.downloadUrl) {
       window.open(asset.downloadUrl, '_blank', 'noopener,noreferrer');
     }
+  };
+
+  const handleToggleFavorite = (assetId: string, e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    setFavoriteIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(assetId)) {
+        next.delete(assetId);
+      } else {
+        next.add(assetId);
+      }
+      return next;
+    });
+  };
+
+  const renderMediaCard = (asset: MediaAsset) => {
+    const isFav = favoriteIds.has(asset.id);
+    return (
+      <MediaCard
+        asset={asset}
+        onSelect={handleSelectAsset}
+        onDownload={handleDownloadAsset}
+        extraActions={
+          <button
+            type="button"
+            className={`media-card-favorite-btn ${isFav ? 'favorited' : ''}`}
+            onClick={(e) => handleToggleFavorite(asset.id, e)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation();
+              }
+            }}
+            aria-label={
+              isFav
+                ? `Remove ${asset.title || 'media asset'} from favorites`
+                : `Add ${asset.title || 'media asset'} to favorites`
+            }
+            aria-pressed={isFav}
+          >
+            {isFav ? '★ Favorited' : '☆ Favorite'}
+          </button>
+        }
+      />
+    );
   };
 
   return (
@@ -73,6 +119,7 @@ export const MediaBrowser: React.FC = () => {
             perPage={12}
             onSelectAsset={handleSelectAsset}
             onDownloadAsset={handleDownloadAsset}
+            renderItem={renderMediaCard}
           />
         </div>
       )}
@@ -90,6 +137,7 @@ export const MediaBrowser: React.FC = () => {
                 assets={curatedData.assets}
                 onSelectAsset={handleSelectAsset}
                 onDownloadAsset={handleDownloadAsset}
+                renderItem={renderMediaCard}
               />
 
               {curatedData.pagination && (curatedData.pagination.hasNext || curatedPage > 1) && (

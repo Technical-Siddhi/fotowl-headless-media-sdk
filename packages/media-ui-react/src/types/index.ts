@@ -5,6 +5,7 @@ export interface MediaCardProps {
   asset: MediaAsset;
   onSelect?: (asset: MediaAsset) => void;
   onDownload?: (asset: MediaAsset) => void;
+  extraActions?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
 }
