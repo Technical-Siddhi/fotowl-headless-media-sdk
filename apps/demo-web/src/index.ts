@@ -1,2 +1,1 @@
-// demo-web placeholder entry point
-export {};
+export { App } from './App.js';
