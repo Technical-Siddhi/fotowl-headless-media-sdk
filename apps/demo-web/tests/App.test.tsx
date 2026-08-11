@@ -1,7 +1,6 @@
-import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { App } from '../src/App.js';
+import { App } from '../src/App';
 
 describe('Demo Web App', () => {
   it('renders application header, hero section, and event logger', () => {

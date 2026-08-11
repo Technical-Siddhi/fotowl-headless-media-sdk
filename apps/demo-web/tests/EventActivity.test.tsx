@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import { MediaSDKProvider, useMediaSDK } from '@fotowl/media-react';
 import type { MediaAsset } from '@fotowl/media-react';
-import { EventActivity } from '../src/components/EventActivity.js';
+import { EventActivity } from '../src/components/EventActivity';
 
 const mockAsset: MediaAsset = {
   id: '999',
@@ -13,6 +13,10 @@ const mockAsset: MediaAsset = {
   previewUrl: 'https://example.com/999.jpg',
   width: 1000,
   height: 800,
+  author: {
+    name: 'Test Author',
+    url: 'https://example.com/author',
+  },
   src: { original: '999.jpg', large: '999.jpg', medium: '999.jpg', small: '999.jpg', tiny: '999.jpg' },
 };
 
