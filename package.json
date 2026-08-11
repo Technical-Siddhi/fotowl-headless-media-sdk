@@ -2,8 +2,13 @@
   "name": "fotowl-headless-media-sdk",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.21.0",
   "scripts": {
-    "typecheck": "pnpm -r run typecheck"
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "build": "pnpm --filter @fotowl/demo-web build",
+    "build:demo": "pnpm --filter @fotowl/demo-web build",
+    "dev": "pnpm --filter @fotowl/demo-web dev"
   },
   "devDependencies": {
     "typescript": "^5.4.5"
