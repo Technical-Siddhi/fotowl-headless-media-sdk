@@ -1,231 +1,160 @@
 # FotoOwl Headless Media SDK
 
-> A framework-agnostic, headless media SDK and UI architecture monorepo featuring a production-ready React demo application built for the **FotoOwl React Developer** take-home assignment.
+A TypeScript-based headless media SDK monorepo separating framework-agnostic media engine logic from React adapters and reusable UI components. Built for the FotoOwl React Developer take-home assignment.
+
+- [Live Demo App](https://fotowl-headless-media-sdk-demo-web.vercel.app/)
+- [Documentation Home](https://fotowl-headless-media-sdk-docs.vercel.app/)
+- [SDK Documentation](https://fotowl-headless-media-sdk-docs.vercel.app/guide/)
+- [Components Documentation](https://fotowl-headless-media-sdk-docs.vercel.app/components/)
+- [GitHub Repository](https://github.com/Technical-Siddhi/fotowl-headless-media-sdk)
 
 ---
 
-## 🌐 Live Demo
+## Key Features
 
-🔗 **Production URL:** [https://fotowl-headless-media-sdk-demo-web.vercel.app](https://fotowl-headless-media-sdk-demo-web.vercel.app)
-
-The application is deployed on Vercel from the `main` branch. It provides a complete recruiter-facing showcase of live Pexels media search, curated showcases, detail modals, actionable asset downloads, and real-time SDK lifecycle event telemetry.
+- Framework-Agnostic Media Core: Pure TypeScript engine (`@fotowl/media-core`) free of DOM and React dependencies.
+- React Adapter & Custom Hooks: Provider context (`<MediaSDKProvider>`) and custom hooks (`useMediaSDK`, `useMediaSearch`, `useCuratedMedia`, `useMediaItem`, `useMediaEvent`).
+- Headless React UI Components: Accessible, unstyled primitives (`MediaGrid`, `MediaCard`, `MediaSearch`, `MediaPagination`, `MediaModal`, `useMediaUI`).
+- In-Memory TTL Caching: Response caching and request deduplication.
+- Provider Abstraction: Unified domain models (`MediaAsset`, `MediaSearchResult`) masking API provider details (Pexels REST API integration).
+- Event & Telemetry System: Pub/sub event broadcaster tracking `media:view` and `media:download` activity events.
+- Strict TypeScript: Strict compiler safety across all packages with zero implicit `any`.
+- Vitest Testing Suite: Comprehensive unit and integration test coverage across all packages.
+- Vite React Demo Application: Interactive recruiter showcase application deployed on Vercel.
+- VitePress Documentation: Deployed static documentation site for SDK APIs and UI components.
 
 ---
 
-## 📁 Repository Structure
+## Architecture Overview
 
+```text
+Demo Web App (apps/demo-web)
+    ↓
+React UI Components (@fotowl/media-ui-react)
+    ↓
+React Adapter / Hooks (@fotowl/media-react)
+    ↓
+Media Core SDK (@fotowl/media-core)
+    ↓
+Provider / Cache / Events
 ```
+
+The system follows a strict unidirectional dependency architecture, decoupling networking and caching logic from visual UI components.
+
+---
+
+## Monorepo Structure
+
+```text
 fotowl-headless-media-sdk/
 ├── apps/
-│   └── demo-web/           # Recruiter-facing Web Demo App (Vite + React)
+│   └── demo-web/           # Vite + React demo application
 ├── packages/
-│   ├── media-core/         # Framework-agnostic pure TypeScript SDK engine
-│   ├── media-react/        # React integration wrapper & hooks abstraction
-│   ├── media-ui-react/     # Headless React UI primitives (Grid, Modal, Search, etc.)
-│   ├── media-native/       # React Native core SDK integration wrapper
-│   └── media-ui-native/    # React Native headless UI primitives
-├── docs/                   # Monorepo architecture & implementation guidelines
-└── skills/                 # Agentic context & integration guides
+│   ├── media-core/         # Framework-agnostic SDK engine
+│   ├── media-react/        # React provider and hooks
+│   ├── media-ui-react/     # Headless React UI primitives
+│   ├── media-native/       # React Native core integration
+│   └── media-ui-native/    # React Native UI primitives
+├── docs/                   # VitePress documentation
+└── skills/                 # Architectural integration guidance
 ```
 
-### Monorepo Package Responsibilities
+### Package Responsibilities
 
-- **`apps/demo-web`**: Production web consumer application demonstrating complete SDK integration without directly calling third-party provider APIs.
-- **`packages/media-core`**: Core TypeScript SDK. Implements provider adapters (Pexels), HTTP abstraction, request deduplication, in-memory TTL caching, and `EventEmitter` event lifecycle telemetry. Completely free of React/DOM dependencies.
-- **`packages/media-react`**: React integration layer exposing `MediaSDKProvider`, `useMediaSDK`, `useMediaSearch`, `useCuratedMedia`, and `useMediaEvent`.
-- **`packages/media-ui-react`**: Reusable, unstyled React UI components (`MediaSearch`, `MediaGrid`, `MediaCard`, `MediaModal`, `MediaPagination`, `MediaLoading`, `MediaError`, `useMediaUI`).
-- **`packages/media-native`**: React Native core SDK integration wrapper for cross-platform mobile apps.
-- **`packages/media-ui-native`**: Unstyled React Native UI primitives for mobile layouts.
-- **`docs` & `skills`**: Comprehensive documentation, architectural guidelines, and AI pair-programming integration blueprints.
-
----
-
-## ⭐ Features
-
-- **Live Media Search**: Search high-resolution Pexels photos with automatic debouncing, race-condition safety, and request deduplication.
-- **Curated Media Showcase**: Browse curated photo collections with page-driven pagination.
-- **Pagination Controls**: Smooth page navigation using SDK pagination metadata (`hasNext`, `hasPrev`, `page`).
-- **Responsive Media Grid**: 2-column desktop grid and responsive mobile/tablet layouts with zero horizontal overflow.
-- **Media Detail Modal**: Accessible dialog showcasing high-resolution image preview, dimensions, asset type, and photographer details.
-- **Actionable Downloads**: Triggers file downloads while simultaneously firing `sdk.trackDownload()` telemetry events.
-- **SDK Event System & Live Stream**: Real-time event log widget (`EventActivity`) responding to `media:view` and `media:download` events.
-- **Framework-Agnostic Core**: Pure TypeScript SDK engine usable in Node, React, Vue, Svelte, or React Native.
-- **Graceful States & Key Warning**: Handles loading spinners, retriable error states, and unconfigured provider warnings when no API key is set.
-- **WAI-ARIA Accessibility**: Accessible tab navigation (`role="tablist"`, `role="tab"`, `aria-selected`), `role="dialog"` focus trapping, Escape key listener, and focus restoration.
+- `apps/demo-web`: Vite + React showcase application demonstrating live search, curated showcases, pagination, detail modals, favorites, and live event logging.
+- `packages/media-core`: Core framework-agnostic TypeScript SDK engine handling provider abstraction, TTL caching, deduplication, and EventEmitter telemetry.
+- `packages/media-react`: React integration layer providing `MediaSDKProvider`, `useMediaSDK`, `useMediaSearch`, `useCuratedMedia`, `useMediaItem`, and `useMediaEvent`.
+- `packages/media-ui-react`: Reusable headless React UI components (`MediaGrid`, `MediaCard`, `MediaSearch`, `MediaPagination`, `MediaModal`, `useMediaUI`).
+- `packages/media-native`: React Native core SDK integration wrapper.
+- `packages/media-ui-native`: Unstyled React Native UI primitives.
+- `docs`: VitePress static documentation site.
+- `skills`: Architectural guidance blueprints for pair-programming agents.
 
 ---
 
-## 🏗️ Headless SDK Architecture
+## Development Commands
 
-```
-UI / Consumer Application (apps/demo-web)
-           ↓
-React Adapter (@fotowl/media-react)
-           ↓
-Headless Media SDK (@fotowl/media-core)
-           ↓
-Media Provider / API (Pexels API)
-```
-
-### Why Headless?
-A **headless media SDK** decouples data-fetching, caching, authentication, event telemetry, and networking logic from visual component styling. 
-
-1. **Separation of Concerns**: Application code (`apps/demo-web`) never writes raw `fetch()` or `axios` calls to third-party endpoints.
-2. **Reusability**: Core media engine (`@fotowl/media-core`) can be reused across Web, Mobile (React Native), or Server Node.js without modification.
-3. **Customizability**: UI components (`@fotowl/media-ui-react`) focus exclusively on rendering and layout, allowing consumer apps full styling freedom.
-
----
-
-## 💻 Tech Stack
-
-- **Languages & Runtimes**: TypeScript (v5.4), Node.js (v18+)
-- **Frontend Framework**: React 18, React DOM
-- **Build Tooling**: Vite v5, Vitest v1, pnpm Workspaces
-- **Provider API**: Pexels REST API
-- **Styling**: Vanilla CSS (Modular, Glassmorphic Design Token System)
-- **Testing & Assertions**: Vitest, `@testing-library/react`, Happy DOM
-
----
-
-## 🛠️ Installation & Setup
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/Technical-Siddhi/fotowl-headless-media-sdk.git
-   cd fotowl-headless-media-sdk
-   ```
-
-2. **Install workspace dependencies**:
-   ```bash
-   pnpm install
-   ```
-
----
-
-## 🚀 Development
-
-Start the demo web application dev server from the repository root:
+Run monorepo commands from the workspace root:
 
 ```bash
-pnpm dev
-# or
-pnpm --filter @fotowl/demo-web dev
-```
+# Install workspace dependencies
+pnpm install
 
-The application will run locally at **`http://localhost:3000/`** (or `http://localhost:3001/` if port 3000 is occupied).
-
----
-
-## 🔑 Environment Variables
-
-To perform live searches against Pexels locally, create a `.env` file inside `apps/demo-web/`:
-
-```bash
-cp apps/demo-web/.env.example apps/demo-web/.env
-```
-
-Set your Pexels API Key in `apps/demo-web/.env`:
-```env
-VITE_PEXELS_API_KEY=your_pexels_api_key_here
-```
-
-> 🔒 **Security Notice:** `.env` is ignored by Git and will never be committed. In production (Vercel), environment variables are configured securely via Vercel Project Settings. If no key is provided, the application safely renders an unconfigured warning banner without making unauthorized API requests.
-
----
-
-## 🧪 Testing & Validation Status
-
-Run full workspace validation from the repository root:
-
-```bash
-# 1. Typecheck all 6 workspace packages
+# Run TypeScript type check across all workspace packages
 pnpm run typecheck
 
-# 2. Run unit & integration test suites across all packages
+# Run unit and integration test suites
 pnpm run test
 
-# 3. Production build
-pnpm run build
+# Build production bundle for demo app
+pnpm --filter @fotowl/demo-web build
+
+# Build static VitePress documentation site
+pnpm --filter @fotowl/docs build
+
+# Start local VitePress documentation dev server
+pnpm --filter @fotowl/docs dev
 ```
 
-### Verified Test Results (75 / 75 Tests Passed)
+---
 
-| Package | Test Scope | Status | Passed Tests |
-| :--- | :--- | :---: | :---: |
-| **`@fotowl/media-core`** | Pexels Provider, SDK Engine, Memory Cache, Event Emitter | **PASS** | 32 / 32 |
-| **`@fotowl/media-react`** | `MediaSDKProvider`, Context Hooks, Event Listeners | **PASS** | 18 / 18 |
-| **`@fotowl/media-ui-react`** | Headless UI Components (`Grid`, `Modal`, `Search`, `Card`, `Pagination`) | **PASS** | 21 / 21 |
-| **`@fotowl/demo-web`** | Header, Tab Navigation, Event Activity Logger | **PASS** | 4 / 4 |
-| **TOTAL** | **Full Monorepo Suite** | **PASS** | **75 / 75** |
+## Testing & Build Verification
 
-- **TypeScript Validation:** `pnpm run typecheck` passed cleanly across all workspace packages (`tsc --noEmit`).
-- **Production Build:** `pnpm run build` completed cleanly in `< 2` seconds.
+Verified test results across workspace packages:
+
+- `media-core`: 32 / 32 tests passed
+- `media-react`: 18 / 18 tests passed
+- `media-ui-react`: 21 / 21 tests passed
+- `demo-web`: 4 / 4 tests passed
+- TypeScript Validation: `pnpm run typecheck` passed cleanly across all workspace packages (`tsc --noEmit`).
+- Demo Production Build: `pnpm --filter @fotowl/demo-web build` passed successfully.
+- VitePress Documentation Build: `pnpm --filter @fotowl/docs build` passed successfully.
 
 ---
 
-## 🚀 Deployment
+## Documentation
 
-- **Hosting Platform:** Vercel
-- **Live URL:** [https://fotowl-headless-media-sdk-demo-web.vercel.app](https://fotowl-headless-media-sdk-demo-web.vercel.app)
-- **Deployment Strategy:** Automated CI/CD build from the `main` branch.
+Interactive documentation is deployed on Vercel:
 
----
+- [Documentation Home](https://fotowl-headless-media-sdk-docs.vercel.app/)
+- [SDK Documentation](https://fotowl-headless-media-sdk-docs.vercel.app/guide/)
+- [Components Documentation](https://fotowl-headless-media-sdk-docs.vercel.app/components/)
 
-## 📡 SDK Event System
-
-The SDK provides an internal `EventEmitter` that broadcasts media lifecycle events:
-
-- **`media:view`**: Fired when a user selects and opens a media asset detail view (`sdk.trackView(asset)`).
-- **`media:download`**: Fired when a user initiates an asset download (`sdk.trackDownload(asset)`).
-
-In `apps/demo-web`, the `EventActivity` component consumes these events using `useMediaEvent`:
-
-```tsx
-useMediaEvent('media:view', (event) => {
-  // Update live activity stream UI
-});
-```
-
-This demonstrates that analytics and event broadcasting are built into the SDK layer, eliminating the need for consumer apps to write custom event tracking code.
+Built with VitePress.
 
 ---
 
-## 📐 Key Design Decisions
+## Live Demo
 
-1. **Headless Engine**: Keeps core media logic framework-agnostic so it can be reused across Web, React Native, or Node.js.
-2. **Layered Monorepo Architecture**: Clean separation between `@fotowl/media-core` (pure JS/TS), `@fotowl/media-react` (state/context), and `@fotowl/media-ui-react` (rendering).
-3. **Consumer App Isolation**: `apps/demo-web` interacts strictly with SDK context and hooks; it imports no direct networking libraries (`axios`/`fetch`) or media endpoint URLs.
-4. **Provider-Agnostic Abstraction**: Hides provider-specific Pexels API structures behind unified `MediaAsset` and `MediaSearchResult` domain interfaces.
+- [Live Web Application](https://fotowl-headless-media-sdk-demo-web.vercel.app/)
 
----
-
-## 🎯 Assignment Evaluation Focus
-
-This repository highlights technical execution across key engineering dimensions:
-
-- **SDK Architecture & Layering**: Strict dependency constraints and uni-directional data flow.
-- **TypeScript Quality**: Full type safety, strict compiler options, and zero implicit `any`.
-- **React & Hooks Design**: Custom hooks (`useMediaSearch`, `useCuratedMedia`, `useMediaEvent`) managing asynchronous lifecycle cleanly.
-- **Component & UI Primitives**: Accessible, unstyled React UI primitives with clean glassmorphic demo styling.
-- **Separation of Concerns**: Clear boundary between core SDK networking, React adapters, and consumer applications.
-- **Robust Testing**: 75 comprehensive tests covering core logic, hooks, UI primitives, and demo integration.
-- **Accessibility & UX**: WAI-ARIA tab semantics, accessible modal dialogs, and responsive CSS grids.
-- **Production Readiness**: Vercel deployment, zero-config fallbacks, and clean build tooling.
+### Demo Features:
+1. Catalog Search: Live search with debouncing and request deduplication.
+2. Curated Showcase: Page-driven curated media browsing.
+3. Pagination: Page switching using SDK metadata.
+4. Media Detail Modal: Accessible dialog displaying asset details and photographer links.
+5. Downloads & Favorites: Asset download triggers and favorite state toggling.
+6. SDK Telemetry Stream: Real-time log activity widget monitoring `media:view` and `media:download` events.
 
 ---
 
-## 🔮 Future Improvements
+## Submission Links
 
-- **Multi-Provider Support**: Add adapters for Unsplash, Pixabay, or custom self-hosted DAM providers.
-- **Advanced Caching**: Persistent IndexedDB/LocalStorage cache storage driver in addition to in-memory TTL caching.
-- **Additional Framework Adapters**: Vue (`@fotowl/media-vue`) and Svelte (`@fotowl/media-svelte`) wrapper packages.
-- **Package Publishing**: Automated Changesets workflow for publishing packages to npm.
-- **Enhanced Search Filters**: Support orientation (landscape/portrait) and color filters in UI primitives.
+| Requirement | Verified Deployment URL |
+| :--- | :--- |
+| GitHub Repository | [https://github.com/Technical-Siddhi/fotowl-headless-media-sdk](https://github.com/Technical-Siddhi/fotowl-headless-media-sdk) |
+| Live Demo | [https://fotowl-headless-media-sdk-demo-web.vercel.app/](https://fotowl-headless-media-sdk-demo-web.vercel.app/) |
+| SDK Documentation | [https://fotowl-headless-media-sdk-docs.vercel.app/guide/](https://fotowl-headless-media-sdk-docs.vercel.app/guide/) |
+| Components Documentation | [https://fotowl-headless-media-sdk-docs.vercel.app/components/](https://fotowl-headless-media-sdk-docs.vercel.app/components/) |
 
 ---
 
-## 👨‍💻 Author
+## Assignment Notes
 
-**Siddhi Raj (Technical-Siddhi)**  
-- GitHub: [https://github.com/Technical-Siddhi/fotowl-headless-media-sdk](https://github.com/Technical-Siddhi/fotowl-headless-media-sdk)
-- Live App: [https://fotowl-headless-media-sdk-demo-web.vercel.app](https://fotowl-headless-media-sdk-demo-web.vercel.app)
+This project was developed for the FotoOwl React Developer take-home assignment. It demonstrates a complete headless media SDK architecture, React integration hooks, reusable UI components, unit testing, TypeScript validation, production builds, and deployed documentation.
+
+---
+
+## AI-Assisted Development
+
+AI tools were used transparently during development for architectural discussions, debugging, implementation guidance, documentation drafting, and test verification. The final code implementation, package boundaries, integration hooks, unit tests, and production deployments were reviewed and validated.
